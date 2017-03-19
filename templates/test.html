@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Test
+{% endblock %}
+
+{% block main %}
+
+  <div>
+    <h3>{{ user[0]['username'] }}'s finances</h3>
+
+    <table class="table table-striped">
+      <tr>
+        <th>Bank</th>
+        <th>Cash</th>
+        <th>Total</th>
+      </tr>
+      <tr>
+        <td>{{ user_totals[0]['bank_total'] | euro }}</td>
+        <td>{{ user_totals[0]['cash_total'] | euro }}</td>
+        <td>{{ user_total |  euro }}</td>
+      </tr>
+    </table>
+
+  </div>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Total
+{% endblock %}
+
+{% block main %}
+
+  <div>
+    <h3>{{ user[0]['username'] }}'s Transaction History</h3>
+
+    <table class="table table-striped">
+      <tr>
+        <th>Type</th>
+        <th>Amount</th>
+        <th>Category</th>
+        <th>Company</th>
+        <th>Date</th>
+      </tr>
+      {% for t in history %}
+        <tr>
+          <td>{{ t['transaction_type'] }}</td>
+          <td>{{ t['transaction'] | euro }}</td>
+          <td>{{ t['category'] }}</td>
+          <td>{{ t['company'] }}</td>
+          <td>{{ t['date'] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+  </div>
+{% endblock %}
