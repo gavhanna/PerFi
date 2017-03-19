@@ -57,7 +57,7 @@ pwd_context = CryptContext(
 @login_required
 def index():
 
-    return render_template("index.html",)
+    return redirect(url_for("total"))
 
 @app.route("/total")
 @login_required
@@ -77,8 +77,8 @@ def total():
 @app.route("/transaction", methods=["GET", "POST"])
 @login_required
 def transaction():
+    user = db.execute("SELECT * FROM users WHERE id = :id", id=session["user_id"])
     if request.method == "POST":
-        user = db.execute("SELECT * FROM users WHERE id = :id", id=session["user_id"])
 
         if (request.form["transaction"] == 0 or
         request.form["category"] == "" or
@@ -107,11 +107,16 @@ def transaction():
         cat=t_cat,
         comp=t_comp)
 
+
         print(session['user_id'])
 
         return redirect(url_for("history"))
     else:
-        return render_template("transaction.html")
+        categories = db.execute("SELECT * FROM category WHERE username = :username", username = user[0]['username'])
+        companies = db.execute("SELECT * FROM company WHERE username = :username", username = user[0]['username'])
+
+        return render_template("transaction.html", categories=categories,
+        companies=companies)
 
 
 
@@ -197,6 +202,14 @@ def register():
         username=request.form['username'],
         bank=request.form['bank'],
         cash=request.form['cash'])
+
+        # adding default category/company names for user to the db
+        db.execute("INSERT INTO category (username, category) VALUES (:username, 'Food')", username=request.form['username'])
+        db.execute("INSERT INTO category (username, category) VALUES (:username, 'Transport')", username=request.form['username'])
+        db.execute("INSERT INTO company (username, company) VALUES (:username, 'Tesco')", username=request.form['username'])
+        db.execute("INSERT INTO company (username, company) VALUES (:username, 'Lidl')", username=request.form['username'])
+        db.execute("INSERT INTO company (username, company) VALUES (:username, 'Cost-Cutter')", username=request.form['username'])
+        db.execute("INSERT INTO company (username, company) VALUES (:username, 'Wrights (Marino)')", username=request.form['username'])
 
 
         return redirect(url_for("index"))

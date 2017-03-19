@@ -35,9 +35,12 @@
                             <span class="icon-bar"></span>
                             <span class="icon-bar"></span>
                         </button>
-                        <a class="navbar-brand" href="{{ url_for('index') }}"><span class="logo">
-                          <img src="{{ url_for('static', filename='PerFi-logo.svg') }}" alt="">
-                        </span></a>
+                        <a class="navbar-brand" href="{{ url_for('index') }}">
+                          <!-- <span class="logo">
+                            <img src="{{ url_for('static', filename='PerFi-logo.svg') }}" alt="">
+                          </span> -->
+                          <h3 id="logo-placeholder">PerFi</h3>
+                      </a>
                     </div>
                     <div class="collapse navbar-collapse" id="navbar">
                         {% if session.user_id %}

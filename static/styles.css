@@ -6,6 +6,9 @@
     text-align: center;
 }
 
+#logo-placeholder {
+  margin: 0;
+}
 /* colors for navbar */
 .navbar-default .navbar-brand .blue
 {
@@ -51,7 +54,7 @@ body {
 }
 
 
-.logo img {
+/*.logo img {
   width: 40px;
   height: auto;
   margin: 0;
@@ -61,7 +64,7 @@ body {
 
 .logo {
   width: 50px;
-}
+}*/
 
 
 label.btn span {
