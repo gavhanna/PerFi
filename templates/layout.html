@@ -15,10 +15,14 @@
 
         <link href="{{ url_for('static', filename='styles.css') }}" rel="stylesheet"/>
 
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
         <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-validator/0.5.3/css/bootstrapValidator.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-validator/0.5.3/js/bootstrapValidator.min.js"></script>
 
-        <title>PerFi {% block title %}{% endblock %}</title>
+        <title>PerFi | {% block title %}{% endblock %}</title>
 
     </head>
 
@@ -47,7 +51,8 @@
                             <ul class="nav navbar-nav">
                                 <li><a href="{{ url_for('total') }}">Total</a></li>
                                 <li><a href="{{ url_for('transaction') }}">Transaction</a></li>
-                                <li><a href="{{ url_for('history') }}">Histoy</a></li>
+                                <li><a href="{{ url_for('history') }}">History</a></li>
+                                <li><a href="{{ url_for('settings') }}">Settings</a></li>
                             </ul>
                             <ul class="nav navbar-nav navbar-right">
                                 <li><a href="{{ url_for('logout') }}">Log Out</a></li>
@@ -76,6 +81,7 @@
 
         </div>
 
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
     </body>
 
 </html>

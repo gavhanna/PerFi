@@ -8,33 +8,59 @@
 
   <div>
     <h3>Settings</h3>
-    <form action="{{ url_for('settings') }}" method="post">
-    <fieldset>
+    <form action="{{ url_for('settings') }}" method="post" id="original">
+      <fieldset>
+        <div class="form-group">
+          <input class="form-control" name="add-category" placeholder="Add Category" type="text" />
+          <div class="help-block with-errors"></div>
+          <input class="form-control" name="add-company" placeholder="Add Company" type="text" />
+          <button class="btn btn-default" type="submit">Submit</button>
+        </div>
+      </fieldset>
+    </form>
 
-        <div class="form-group">
-          <label for="category-dropdown">Category</label>
-          <select name="category" id="category-dropdown" class="form-control">
-            {% for cat in categories %}
-              <option value="{{cat['category']}}">{{cat['category']}}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="company-dropdown">Company</label>
-          <select name="company" id="company-dropdown" class="form-control">
-            {% for com in companies %}
-              <option value="{{com['company']}}">{{com['company']}}</option>
-            {% endfor %}
-          </select>
+      <div class="container-fluid">
+        <div class="row settings-row-1">
+          <div class="col-xs-4 settings-title">
+            Current Categories
+          </div>
+          <div class="col-xs-8 settings-item">
+            <ul class="list-group">
+              {% for cat in categories %}
+                <li class="list-group-item relative">{{ cat['category'] }} <span class="delete-item pull-right">X</span> </li>
+              {% endfor %}
+              <!-- <li class="list-group-item">
+                <form action="{{ url_for('settings') }}" method="post">
+                  <input class="form-control" name="add-category" placeholder="Add Category" type="text" required />
+                  <button class="btn btn-default" name="btn" type="submit" value="add-category-btn">Add Category</button>
+                </form>
+              </li> -->
+            </ul>
+          </div>
         </div>
 
-        <div class="form-group">
-            <input class="form-control" name="transaction" placeholder="Transaction" type="number" step=0.01 />
+        <div class="row settings-row-2">
+          <div class="col-xs-4 settings-title">
+            Current Companies
+          </div>
+          <div class="col-xs-8 settings-item">
+            <ul class="list-group">
+              {% for com in companies %}
+                <li class="list-group-item relative">{{ com['company'] }}
+                  <span class="delete-item pull-right">X</span> 
+                </li>
+              {% endfor %}
+              <!-- <li class="list-group-item">
+                <form action="{{ url_for('settings') }}" method="post">
+                  <input class="form-control" name="add-company" placeholder="Add Company" type="text" required />
+                  <button name="btn" value="add-company" class="btn btn-default" type="submit">Add Company</button>
+                </form>
+              </li> -->
+            </ul>
+          </div>
         </div>
-        <div class="form-group">
-            <button class="btn btn-default" type="submit">Submit</button>
-        </div>
-    </fieldset>
-  </form>
+      </div>
+
+
   </div>
 {% endblock %}

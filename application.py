@@ -4,7 +4,6 @@ from flask_session import Session
 from passlib.apps import custom_app_context as pwd_context
 from tempfile import gettempdir
 from passlib.context import CryptContext
-
 from helpers import *
 
 # configure application
@@ -56,12 +55,88 @@ pwd_context = CryptContext(
 @app.route("/")
 @login_required
 def index():
-
     return redirect(url_for("total"))
+
+@app.route("/test", methods=["GET"])
+@login_required
+def test():
+    user = db.execute("SELECT * FROM users WHERE id = :id", id=session["user_id"])
+    username=user[0]["username"]
+
+    categories = db.execute("SELECT * FROM category WHERE username = :username", username=username)
+    catArray = []
+    for cat in categories:
+        catArray.append(cat["category"])
+
+    transactions = db.execute("SELECT * FROM user_transactions WHERE username = :username", username=username)
+
+    totalsDict = {}
+
+    for item in transactions:
+        for cat in catArray:
+            if item["category"] == cat:
+                totalsDict[item['category']] = int(item['transaction'])
+
+    # testDict = {
+    #     "values": [20, 20, 20, 20, 20],
+    #     "labels": catArray,
+    #     "type": "pie"
+    # }
+
+    testDict = {
+        "x": ['1']
+    }
+
+
+    return render_template("test.html",
+            test=testDict,
+            test3=transactions,
+            test4=catArray,
+            test2=totalsDict)
+
+
+
+@app.route("/settings", methods=["GET", "POST"])
+@login_required
+def settings():
+    """Manage user settings"""
+    user = db.execute("SELECT * FROM users WHERE id = :id", id=session["user_id"])
+    username=user[0]["username"]
+
+    if request.method == "POST":
+
+        add_category = request.form["add-category"]
+        add_company = request.form["add-company"]
+
+        if (add_category == "" and
+            add_company == ""):
+            return apology("enter either a company or category name to add")
+        else:
+            if (not add_category == ""):
+                db.execute("INSERT INTO category (username, category) VALUES (:username, :add_category)",
+                username=username,
+                add_category=add_category)
+
+            if (not add_company == ""):
+                db.execute("INSERT INTO company (username, company) VALUES (:username, :add_company)",
+                username=username,
+                add_company=add_company)
+
+            return redirect(url_for("settings"))
+
+        return render_template("settings.html")
+
+    else:
+        categories = db.execute("SELECT * FROM category WHERE username = :username", username = user[0]['username'])
+        companies = db.execute("SELECT * FROM company WHERE username = :username", username = user[0]['username'])
+
+        return render_template("settings.html", categories=categories,
+        companies=companies)
 
 @app.route("/total")
 @login_required
 def total():
+    """View user total"""
 
     user = db.execute("SELECT * FROM users WHERE id = :id", id=session["user_id"])
 
@@ -70,13 +145,15 @@ def total():
 
     user_total = user_totals[0]['bank_total'] + user_totals[0]['cash_total']
 
-    return render_template("test.html", user=user,
+    return render_template("total.html", user=user,
     user_totals=user_totals,
     user_total=user_total)
 
 @app.route("/transaction", methods=["GET", "POST"])
 @login_required
 def transaction():
+    """Make a transaction"""
+
     user = db.execute("SELECT * FROM users WHERE id = :id", id=session["user_id"])
     if request.method == "POST":
 
@@ -91,12 +168,12 @@ def transaction():
         t_comp = request.form["company"]
 
         if request.form['transaction_type'] == "cash":
-            db.execute("UPDATE user_totals SET cash_total = cash_total + :cash WHERE username = :user",
+            db.execute("UPDATE user_totals SET cash_total = cash_total - :cash WHERE username = :user",
             cash=request.form['transaction'],
             user=user[0]['username'])
 
         if request.form['transaction_type'] == "bank":
-            db.execute("UPDATE user_totals SET cash_total = bank_total + :bank WHERE username = :user",
+            db.execute("UPDATE user_totals SET bank_total = bank_total - :bank WHERE username = :user",
             bank=request.form['transaction'],
             user=user[0]['username'])
 
@@ -123,6 +200,7 @@ def transaction():
 @app.route("/history")
 @login_required
 def history():
+    """View user histoy"""
     user = db.execute("SELECT * FROM users WHERE id = :id", id=session["user_id"])
 
     history = db.execute("SELECT * FROM user_transactions WHERE username = :name", name=user[0]['username'])
@@ -216,72 +294,6 @@ def register():
 
     else:
         return render_template("register.html")
-
-@app.route("/sell", methods=["GET", "POST"])
-@login_required
-def sell():
-    if request.method == "POST":
-        if request.form["symbol"] == "" or request.form["shares"] == "":
-            return apology("please enter both a symbol and amount of shares")
-
-        query = lookup(request.form["symbol"])
-        if isinstance(query, dict) == False:
-            return apology("not a valid symbol")
-
-        user = db.execute("SELECT * FROM users WHERE id = :id", id=session["user_id"])
-        user_cash = user[0]["cash"]
-        portfolio = db.execute("SELECT * FROM portfolio WHERE id = :id", id=session["user_id"])
-        symbol = query["symbol"]
-        name = query["name"]
-        stock_price = query["price"]
-        shares = int(request.form["shares"])
-        user_id = session["user_id"]
-        transaction = float("{0:.2f}".format(shares * stock_price))
-
-        current_portfolio = db.execute("SELECT * FROM portfolio WHERE id = :id AND symbol = :symbol",
-                                        id=session["user_id"],
-                                        symbol=symbol)
-        current_shares = current_portfolio[0]["shares"]
-
-        if (current_shares - shares) < 0:
-            return apology("can't sell more than you have...")
-
-        if shares > 0:
-
-            if any(d['symbol'] == symbol for d in portfolio):
-                db.execute('UPDATE portfolio SET "transaction" = "transaction" - :transaction, shares = shares - :shares WHERE symbol = :symbol AND id = :id;',
-                            transaction=transaction,
-                            shares=shares,
-                            symbol=symbol,
-                            id=user_id)
-
-                db.execute("UPDATE users SET cash = cash + :transaction WHERE id = :user_id",
-                            transaction=transaction,
-                            user_id=user_id)
-
-
-
-            elif not any(d["symbol"] == symbol for d in portfolio):
-
-                return apology("you don't have any stocks in " + symbol)
-
-
-            db.execute("INSERT INTO 'history' ('id','transaction','symbol','name','shares','price') VALUES (:user_id,:transaction,:symbol,:name,-:shares,:price)",
-                            user_id=int(user_id),
-                            transaction=(float(transaction)),
-                            symbol=symbol,
-                            name=str(name),
-                            shares=int(shares),
-                            price=float(stock_price))
-
-            return redirect(url_for("index"))
-
-        else:
-            apology("you don't have any money..")
-
-        return redirect(url_for("index"))
-    else:
-        return render_template("sell.html")
 
 
 app.run(
