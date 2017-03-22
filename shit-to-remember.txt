@@ -1,0 +1,21 @@
+CREATE TABLE 'user_transactions'
+(
+ 'username' TEXT NOT NULL,
+ 'transaction_type' TEXT NOT NULL,
+ 'transaction' NUMERIC NOT NULL,
+ 'date' DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ 'category' TEXT NOT NULL,
+ 'company' TEXT NOT NULL
+);
+
+
+
+CREATE TABLE 'user_transactions'
+(
+ 'username' TEXT NOT NULL,
+ 'transaction_type' TEXT NOT NULL,
+ 'transaction' TEXT NOT NULL, 
+ 'date' DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ 'category' TEXT NOT NULL,
+ 'company' TEXT NOT NULL
+);

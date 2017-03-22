@@ -68,14 +68,20 @@ def test():
     for cat in categories:
         catArray.append(cat["category"])
 
-    transactions = db.execute("SELECT * FROM user_transactions WHERE username = :username", username=username)
+    transactions = db.execute("SELECT * FROM 'user_transactions' WHERE username = :username", username=username)
 
-    totalsDict = {}
 
-    for item in transactions:
-        for cat in catArray:
-            if item["category"] == cat:
-                totalsDict[item['category']] = int(item['transaction'])
+    totalsArray = []
+
+    for tran in transactions:
+        totalsArray.append(tran['transaction'])
+
+    
+
+    # for item in transactions:
+    #     for cat in catArray:
+    #         if item["category"] == cat:
+    #             totalsDict[item['category']] = int(item['transaction'])
 
     # testDict = {
     #     "values": [20, 20, 20, 20, 20],
@@ -83,16 +89,21 @@ def test():
     #     "type": "pie"
     # }
 
+
+
     testDict = {
-        "x": ['1']
+        "x": catArray,
+        "y": ['1', '5', '3', '6', '4'],
+        'type': 'bar'
     }
 
 
     return render_template("test.html",
             test=testDict,
             test3=transactions,
-            test4=catArray,
-            test2=totalsDict)
+            #test4=catArray,
+            test2=totalsArray
+            )
 
 
 
@@ -100,6 +111,7 @@ def test():
 @login_required
 def settings():
     """Manage user settings"""
+
     user = db.execute("SELECT * FROM users WHERE id = :id", id=session["user_id"])
     username=user[0]["username"]
 
@@ -163,7 +175,8 @@ def transaction():
             return apology("fill everything out yo")
 
         t_type = request.form["transaction_type"]
-        t_tran = request.form["transaction"]
+        t_tran = str(request.form["transaction"])
+        print(t_tran)
         t_cat = request.form["category"]
         t_comp = request.form["company"]
 
